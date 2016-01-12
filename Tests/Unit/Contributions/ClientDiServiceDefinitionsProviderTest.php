@@ -41,7 +41,7 @@ class ClientDiServiceDefinitionsProviderTest extends \PHPUnit_Framework_TestCase
         $configEntriesManager = \Phake::mock('Modera\ConfigBundle\Config\ConfigurationEntriesManagerInterface');
         \Phake::when($configEntriesManager)
             ->findOneByNameOrDie(ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY)
-            ->thenReturn($configEntry);
+            ->thenReturn($configEntry)
         ;
 
         $provider = new ClientDiServiceDefinitionsProvider($tokenStorage, $configEntriesManager, 'prod');

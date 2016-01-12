@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/modera/ModeraBackendGoogleAnalyticsBundle.svg?branch=master)](https://travis-ci.org/modera/ModeraBackendGoogleAnalyticsBundle)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/modera/ModeraBackendGoogleAnalyticsBundle/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/modera/ModeraBackendGoogleAnalyticsBundle/?branch=master)
+[![StyleCI](https://styleci.io/repos/49496662/shield)](https://styleci.io/repos/49496662)
 
 Provides support for gathering 'pageview' analytics in backend using Google Analytics.
 
