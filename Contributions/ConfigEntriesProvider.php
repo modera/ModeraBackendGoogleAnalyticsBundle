@@ -27,7 +27,7 @@ class ConfigEntriesProvider implements ContributorInterface
                 ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY,
                 T::trans('Backend tracking code'),
                 '',
-                'analytics',
+                'google-analytics',
                 $serverConfig,
                 array()
             ),

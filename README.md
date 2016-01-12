@@ -18,6 +18,15 @@ you need to add this to your AppKernel:
 
     new \Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle(),
 
+After bundle has been enabled you need to install required configuration properties, for this run:
+
+    modera:config:install-config-entries
+
+# Documentation
+
+If you want to have a UI to access configuration properties contributed by this bundle then you may also want
+to install `modera/backend-google-analytics-config-bundle` bundle.
+
 ## Licensing
 
 This bundle is under the MIT license. See the complete license in the bundle:
