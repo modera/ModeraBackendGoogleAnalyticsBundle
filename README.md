@@ -18,9 +18,13 @@ you need to add this to your AppKernel:
 
     new \Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle(),
 
-After bundle has been enabled you need to install required configuration properties, for this run:
+After bundle has been enabled to make sure that contributed configuration properties are installed run this command:
 
     modera:config:install-config-entries
+
+When this command is executed you will either see that some configuration property(properties) were installed or
+no configuration properties were installed, in latter case it means that they were automatically installed by
+module-bundle for you during bundle installation process.
 
 # Documentation
 
