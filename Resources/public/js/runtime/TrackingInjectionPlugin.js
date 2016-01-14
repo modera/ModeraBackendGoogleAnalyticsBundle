@@ -31,6 +31,11 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
      */
 
     /**
+     * @private
+     * @property {Object} rootConfig
+     */
+
+    /**
      * @param {Object} config
      */
     constructor: function (config) {
@@ -73,8 +78,17 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
     // private
     logPageView: function() {
+        var sectionName = this.executionContext.getSectionName();
+        if (!sectionName) {
+            // MPFE-865
+            // This local fix is required before MPFE-865 is resolved properly on MJR level
+            if (this.rootConfig.menuItems[0]) {
+                sectionName = this.rootConfig.menuItems[0].id;
+            }
+        }
+
         var token = this.compileToken(
-            this.executionContext.getSectionName(),
+            sectionName,
             Ext.Object.getKeys(this.executionContext.getAllParams())
         );
         ga('send', 'pageview', token);
@@ -96,6 +110,7 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
                 return;
             }
 
+            me.rootConfig = config;
             config = config['modera_backend_google_analytics'];
             me.config = config;
 
@@ -110,7 +125,6 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
             }
 
             me.injectTracker();
-            me.logPageView();
 
             me.executionContext.on('transactioncommitted', function() {
                 me.logPageView();
