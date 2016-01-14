@@ -12,33 +12,29 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     ],
 
     /**
-     * @private
-     * @property {String} trackingCode
-     */
-
-    /**
-     * @private
-     * @property {String} userId
-     */
-
-    /**
-     * If set to `TRUE` then every time a pageview is sent to GA then it is going to be
-     * logged in JS console as well.
+     * This service will be used to get trackingCode, prefix and status if debug is enabled.
      *
      * @private
-     * @property {boolean} isDebug
+     * @cfg {MF.runtime.config.ConfigProviderInterface} configProvider
      */
 
     /**
      * @private
-     * @property {MF.activation.executioncontext.AbstractContext} executionContext
+     * @cfg {MF.activation.executioncontext.AbstractContext} executionContext
+     */
+
+    /**
+     * This property is initialized when {@link #bootstrap} method is invoked.
+     *
+     * @private
+     * @property {Object} config
      */
 
     /**
      * @param {Object} config
      */
     constructor: function (config) {
-        MF.Util.validateRequiredConfigParams(this, config, ['trackingCode', 'userId']);
+        MF.Util.validateRequiredConfigParams(this, config, ['configProvider', 'executionContext']);
 
         Ext.apply(this, config);
     },
@@ -50,27 +46,29 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
     // private
     injectTracker: function() {
+        var me = this;
+
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
                 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
         //ga('create', this.trackingCode, 'auto');
-        ga('create', this.trackingCode, {
+        ga('create', me.config['tracking_code'], {
             allowAnchor: true,
-            userId: this.userId
+            userId: me.config['user_id']
         });
 
-        var debugStatus = 'debug ' + (this.isDebug ? 'enabled' : 'disabled');
+        var debugStatus = 'debug ' + (me.config['is_debug'] ? 'enabled' : 'disabled');
 
         console.debug(
-            '%s.bootstrap(): Injected GA tracking snippet with code "%s" (%s).', this.$className, this.trackingCode, debugStatus
+            '%s.bootstrap(): Injected GA tracking snippet with code "%s" (%s).', me.$className, me.config['tracking_code'], debugStatus
         );
     },
 
     // private
     compileToken: function(sectionName, activities) {
-        return [sectionName].concat(activities).join('/');
+        return [this.config['prefix'], sectionName].concat(activities).join('/');
     },
 
     // private
@@ -81,7 +79,7 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
         );
         ga('send', 'pageview', token);
 
-        if (this.isDebug) {
+        if (this.config['is_debug']) {
             console.debug('%s: Sent "pageview" token with "%s".', this.$className, token);
         }
     },
@@ -90,13 +88,35 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     bootstrap: function(cb) {
         var me = this;
 
-        this.injectTracker();
-        this.logPageView();
+        this.configProvider.getConfig(function(config) {
+            if (!config.hasOwnProperty('modera_backend_google_analytics')) {
+                console.error('%s.bootstrap(): Unable to find required config, aborting tracker initialization.', me.$className);
 
-        this.executionContext.on('transactioncommitted', function(context, stateObject) {
+                cb();
+                return;
+            }
+
+            config = config['modera_backend_google_analytics'];
+            me.config = config;
+
+            if (!config['tracking_code']) {
+                console.warn(
+                    '%s.bootstrap(): No tracking code is specified yet, aborting tracker initialization.',
+                    me.$className
+                );
+
+                cb();
+                return;
+            }
+
+            me.injectTracker();
             me.logPageView();
-        });
 
-        cb();
+            me.executionContext.on('transactioncommitted', function() {
+                me.logPageView();
+            });
+
+            cb();
+        });
     }
 });

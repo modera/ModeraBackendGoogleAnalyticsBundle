@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c68695475a911d244242b16dacc27b89",
+    "hash": "0f01ef477304b97095dc03c6f23f32e6",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -864,28 +864,36 @@
         },
         {
             "name": "modera/config-bundle",
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "target-dir": "Modera/ConfigBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/modera/ModeraConfigBundle.git",
-                "reference": "b4549ef9da370b3f59fc4db2d7ff1fd981759c58"
+                "reference": "1e8e7b6e81ce0f3196257da71799b2cf71bcf477"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/modera/ModeraConfigBundle/zipball/b4549ef9da370b3f59fc4db2d7ff1fd981759c58",
-                "reference": "b4549ef9da370b3f59fc4db2d7ff1fd981759c58",
+                "url": "https://api.github.com/repos/modera/ModeraConfigBundle/zipball/1e8e7b6e81ce0f3196257da71799b2cf71bcf477",
+                "reference": "1e8e7b6e81ce0f3196257da71799b2cf71bcf477",
                 "shasum": ""
             },
             "require": {
+                "doctrine/doctrine-bundle": "~1.2",
+                "doctrine/orm": "~2.2,>=2.2.3",
                 "modera/foundation-bundle": "~1.0",
-                "php": ">=5.3.0",
-                "symfony/framework-bundle": "~2.0"
+                "php": ">=5.4.0",
+                "sergeil/expander-bundle": "~1.0",
+                "symfony/framework-bundle": "~2.0",
+                "twig/twig": "~1.0"
+            },
+            "require-dev": {
+                "phake/phake": "~2.0",
+                "phpunit/phpunit": "3.7.*"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -904,7 +912,60 @@
                     "homepage": "http://sergei.lissovski.org/"
                 }
             ],
-            "time": "2015-01-12 10:36:51"
+            "description": "Bundles provides tools that allow to you to dynamically store and fetch your configuration properties in a flexible way.",
+            "time": "2016-01-13 09:05:37"
+        },
+        {
+            "name": "modera/direct-bundle",
+            "version": "v1.2.3",
+            "target-dir": "Modera/DirectBundle",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/modera/ModeraDirectBundle.git",
+                "reference": "0225e8a2d355084844958d0655bbecfc60ddc849"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/modera/ModeraDirectBundle/zipball/0225e8a2d355084844958d0655bbecfc60ddc849",
+                "reference": "0225e8a2d355084844958d0655bbecfc60ddc849",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.2",
+                "symfony/finder": "~2.3",
+                "symfony/framework-bundle": "~2.3"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "modera-module": {
+                    "register-bundle": "Modera\\DirectBundle\\ModeraDirectBundle"
+                },
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Modera\\DirectBundle": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sergei Vizel",
+                    "email": "sergei.vizel@modera.org"
+                }
+            ],
+            "description": "Symfony 2 ExtDirect Bundle",
+            "homepage": "https://github.com/modera/direct-bundle",
+            "keywords": [
+                "extdirect",
+                "extjs"
+            ],
+            "time": "2015-12-08 12:55:08"
         },
         {
             "name": "modera/foundation-bundle",
@@ -951,6 +1012,60 @@
                 }
             ],
             "time": "2015-10-05 06:51:09"
+        },
+        {
+            "name": "modera/mjr-integration-bundle",
+            "version": "v1.4.3",
+            "target-dir": "Modera/MjrIntegrationBundle",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/modera/ModeraMjrIntegrationBundle.git",
+                "reference": "2420833dd327bec001e9137c45796367d8e738c4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/modera/ModeraMjrIntegrationBundle/zipball/2420833dd327bec001e9137c45796367d8e738c4",
+                "reference": "2420833dd327bec001e9137c45796367d8e738c4",
+                "shasum": ""
+            },
+            "require": {
+                "modera/direct-bundle": "~1.0",
+                "php": ">=5.4.0",
+                "sergeil/expander-bundle": "~1.0",
+                "symfony/framework-bundle": "~2.0"
+            },
+            "require-dev": {
+                "phake/phake": "2.*",
+                "phpunit/phpunit": "3.*"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Modera\\MjrIntegrationBundle": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sergei Lissovski",
+                    "email": "sergei.lissovski@modera.org",
+                    "homepage": "http://sergei.lissovski.org/"
+                }
+            ],
+            "description": "Provides low level integration for MJR.",
+            "homepage": "http://modera.org",
+            "keywords": [
+                "mjr"
+            ],
+            "time": "2015-11-13 13:35:31"
         },
         {
             "name": "modera/security-bundle",

@@ -31,5 +31,8 @@ class ModeraBackendGoogleAnalyticsExtensionTest extends \PHPUnit_Framework_TestC
 
         $configEntriesProvider = $builder->getDefinition('modera_backend_google_analytics.contributions.config_entries_provider');
         $this->assertEquals(1, count($configEntriesProvider->getTag('modera_config.config_entries_provider')));
+
+        $configMergersProvider = $builder->getDefinition('modera_backend_google_analytics.contributions.config_mergers_provider');
+        $this->assertEquals(1, count($configMergersProvider->getTag('modera_mjr_integration.config.config_mergers_provider')));
     }
 }
