@@ -31,6 +31,12 @@ module-bundle for you during bundle installation process.
 If you want to have a UI to access configuration properties contributed by this bundle then you may also want
 to install `modera/backend-google-analytics-config-bundle` bundle.
 
+## Application related data
+
+Your kernel class (app/AppKernel.php) might additionally implement two methods: **getAppName**, **getAppVersion** which
+then will be used by \Modera\BackendGoogleAnalyticsBundle\Contributions\ConfigMergersProvider to send more
+detailed data to GA.
+
 ## Licensing
 
 This bundle is under the MIT license. See the complete license in the bundle:

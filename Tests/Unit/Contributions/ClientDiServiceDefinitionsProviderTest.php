@@ -17,22 +17,32 @@ class ClientDiServiceDefinitionsProviderTest extends \PHPUnit_Framework_TestCase
         $items = $provider->getItems();
 
         $this->assertTrue(is_array($items));
-        $this->assertEquals(1, count($items));
+        $this->assertEquals(3, count($items));
 
         $items = array_values($items);
-        $service = $items[0];
 
-        $this->assertTrue(is_array($service));
-        $this->assertArrayHasKey('className', $service);
-        $this->assertEquals('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', $service['className']);
-        $this->assertArrayHasKey('args', $service);
-        $this->assertTrue(is_array($service['args']));
-        $this->assertEquals(1, count($service['args']));
-        $arg = $service['args'][0];
+        $injectionPlugin = $items[0];
+        $this->assertTrue(is_array($injectionPlugin));
+        $this->assertArrayHasKey('className', $injectionPlugin);
+        $this->assertEquals('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', $injectionPlugin['className']);
+        $this->assertArrayHasKey('args', $injectionPlugin);
+        $this->assertTrue(is_array($injectionPlugin['args']));
+        $this->assertEquals(1, count($injectionPlugin['args']));
+        $arg = $injectionPlugin['args'][0];
         $this->assertArrayHasKey('executionContext', $arg);
         $this->assertEquals('@root_execution_context', $arg['executionContext']);
         $this->assertArrayHasKey('configProvider', $arg);
         $this->assertEquals('@config_provider', $arg['configProvider']);
-        $this->assertTrue(in_array('runtime_plugin', $service['tags']));
+        $this->assertTrue(in_array('runtime_plugin', $injectionPlugin['tags']));
+
+        $gaBackend = $items[1];
+        $this->assertArrayHasKey('className', $gaBackend);
+        $this->assertArrayHasKey('tags', $gaBackend);
+        $this->assertEquals(['profiler_backend'], $gaBackend['tags']);
+
+        $autoStartPlugin = $items[2];
+        $this->assertArrayHasKey('className', $autoStartPlugin);
+        $this->assertArrayHasKey('tags', $autoStartPlugin);
+        $this->assertEquals(['runtime_plugin'], $autoStartPlugin['tags']);
     }
 }

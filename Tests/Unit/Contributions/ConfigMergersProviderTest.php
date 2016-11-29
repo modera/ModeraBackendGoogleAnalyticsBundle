@@ -4,8 +4,10 @@ namespace Modera\BackendGoogleAnalyticsBundle\Tests\Unit\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\Contributions\ConfigMergersProvider;
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
+use Modera\BackendGoogleAnalyticsBundle\Tests\Fixtures\DummyKernel;
 use Modera\MjrIntegrationBundle\Config\ConfigMergerInterface;
 use Modera\SecurityBundle\Entity\User;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @author    Sergei Lissovski <sergei.lissovski@modera.org>
@@ -45,7 +47,14 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
             ->thenReturn($configEntry)
         ;
 
-        $provider = new ConfigMergersProvider($tokenStorage, $configEntriesManager, 'prod');
+        $kernel = \Phake::mock(KernelInterface::class);
+
+        $provider = new ConfigMergersProvider(
+            $tokenStorage,
+            $configEntriesManager,
+            $kernel,
+            'prod'
+        );
 
         $items = $provider->getItems();
 
@@ -69,10 +78,19 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($config['is_debug']); // because it's "prod" env now
         $this->assertArrayHasKey('prefix', $config);
         $this->assertEquals('/backend', $config['prefix']);
+        $this->assertArrayHasKey('app_name', $config);
+        $this->assertEquals('Modera Foundation', $config['app_name']);
+        $this->assertArrayHasKey('app_version', $config);
+        $this->assertEquals('1.0.0', $config['app_version']);
 
         // --- env = dev
 
-        $provider = new ConfigMergersProvider($tokenStorage, $configEntriesManager, 'dev');
+        $provider = new ConfigMergersProvider(
+            $tokenStorage,
+            $configEntriesManager,
+            $kernel,
+            'dev'
+        );
 
         $items = $provider->getItems();
 
@@ -82,5 +100,33 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
         $config = $items[0]->merge(array());
 
         $this->assertTrue($config['modera_backend_google_analytics']['is_debug']);
+
+        // --- with custom app name/version
+
+        $dummyKernel = new DummyKernel('fooenv', false);
+        $dummyKernel::$appName = 'foo_app';
+        $dummyKernel::$appVersion = '1.2.3';
+
+        $provider = new ConfigMergersProvider(
+            $tokenStorage,
+            $configEntriesManager,
+            $dummyKernel,
+            'dev'
+        );
+
+        $items = $provider->getItems();
+
+        $this->assertEquals(1, count($items));
+
+        $config = $items[0]->merge(array());
+
+        $this->assertArrayHasKey('modera_backend_google_analytics', $config);
+
+        $config = $config['modera_backend_google_analytics'];
+
+        $this->assertArrayHasKey('app_name', $config);
+        $this->assertEquals($dummyKernel::$appName, $config['app_name']);
+        $this->assertArrayHasKey('app_version', $config);
+        $this->assertEquals($dummyKernel::$appVersion, $config['app_version']);
     }
 }

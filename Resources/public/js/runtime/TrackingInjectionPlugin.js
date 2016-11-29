@@ -1,6 +1,6 @@
 /**
- * Adds Google Analytics to MJR so every time a new section/activity is being opened a pageview is sent
- * to GA.
+ * Adds Google Analytics to MJR so every time a new section/activity is being opened a screenview is sent
+ * to GA. This plugin also adds a basic exception logging functionality.
  *
  * @author Sergei Lissovski <sergei.lissovski@modera.org>
  */
@@ -61,7 +61,10 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
         //ga('create', this.trackingCode, 'auto');
         ga('create', me.config['tracking_code'], {
             allowAnchor: true,
-            userId: me.config['user_id']
+            userId: me.config['user_id'],
+            appName: me.config['app_name'],
+            appVersion: me.config['app_version'],
+            siteSpeedSampleRate: 100, // GA wil gather timing analytics for 100% of users
         });
 
         var debugStatus = 'debug ' + (me.config['is_debug'] ? 'enabled' : 'disabled');
@@ -76,8 +79,9 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
         return [this.config['prefix'], sectionName].concat(activities).join('/');
     },
 
-    // private
-    logPageView: function() {
+    // internal
+    // also used by "Modera.backend.googleanalytics.profiling.GABackend"
+    createToken: function() {
         var sectionName = this.executionContext.getSectionName();
         if (!sectionName) {
             // MPFE-865
@@ -91,10 +95,20 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
             sectionName,
             Ext.Object.getKeys(this.executionContext.getAllParams())
         );
-        ga('send', 'pageview', token);
+
+        return token;
+    },
+
+    // private
+    logScreenView: function() {
+        var token = this.createToken();
+
+        ga('send', 'screenview', {
+            'screenName': token
+        });
 
         if (this.config['is_debug']) {
-            console.debug('%s: Sent "pageview" token with "%s".', this.$className, token);
+            console.debug('%s: Sent "screenview" hit with screenName "%s".', this.$className, token);
         }
     },
 
@@ -126,8 +140,22 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
             me.injectTracker();
 
+            // MPFE-873
+            window.onerror = function(msg, url, line, col, error) {
+                var position = ['f:'+url, 'l:'+line];
+                if (col) {
+                    position.push('c:'+col);
+                }
+
+                var formattedMsg = msg+' ['+position.join(' ; ')+']';
+
+                ga('send', 'exception', {
+                    exDescription: formattedMsg
+                });
+            };
+
             me.executionContext.on('transactioncommitted', function() {
-                me.logPageView();
+                me.logScreenView();
             });
 
             cb();
