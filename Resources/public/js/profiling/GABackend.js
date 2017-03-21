@@ -59,13 +59,17 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
         }
 
         if (target instanceof MF.activation.activities.AbstractActivity) {
-            ga('send', {
-                hitType: 'timing',
-                timingCategory: 'MJR',
-                timingVar: this.trackingPlugin.createToken(),
-                timingLabel: 'View activation',
-                timingValue: ms
-            });
+            if (typeof ga !== 'undefined') {
+                ga('send', {
+                    hitType: 'timing',
+                    timingCategory: 'MJR',
+                    timingVar: this.trackingPlugin.createToken(),
+                    timingLabel: 'View activation',
+                    timingValue: ms
+                });
+            } else {
+                console.error("Please, provide a GA token");
+            }
         } else {
             if (key.indexOf(':') != -1) {
                 // cat:var:label
