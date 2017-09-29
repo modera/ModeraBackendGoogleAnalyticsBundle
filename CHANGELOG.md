@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.4.0
+
+* [CLS-976] If GA is not properly configured (not initialized) then an a meaningful warning message will be printed in console.
+
 ## v0.3.0
 
 * If GA is not properly configured (not initialized) then an a meaningful error message will be printed in console.
