@@ -59,7 +59,7 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
         }
 
         if (typeof ga === 'undefined') {
-            console.error("Modera.backend.googleanalytics.profiling.GABackend.onProfileComplete(): GA token is not configured, unable to send analytics.");
+            console.warn("Modera.backend.googleanalytics.profiling.GABackend.onProfileComplete(): GA token is not configured, unable to send analytics.");
             return false;
         }
 
