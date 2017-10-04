@@ -3,7 +3,7 @@
 namespace Modera\BackendGoogleAnalyticsBundle\Tests\Unit\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\Contributions\ClientDiServiceDefinitionsProvider;
-
+use Symfony\Component\DependencyInjection\Container;
 /**
  * @author    Sergei Lissovski <sergei.lissovski@modera.org>
  * @copyright 2016 Modera Foundation
@@ -12,7 +12,17 @@ class ClientDiServiceDefinitionsProviderTest extends \PHPUnit_Framework_TestCase
 {
     public function testGetItems()
     {
-        $provider = new ClientDiServiceDefinitionsProvider();
+        $provider = new ClientDiServiceDefinitionsProvider(false);
+
+        $items = $provider->getItems();
+
+        $this->assertTrue(is_array($items));
+        $this->assertEquals(0, count($items));
+    }
+
+    public function testGetItemsIsEnable()
+    {
+        $provider = new ClientDiServiceDefinitionsProvider(true);
 
         $items = $provider->getItems();
 

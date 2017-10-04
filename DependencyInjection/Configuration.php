@@ -20,6 +20,10 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('modera_backend_google_analytics');
 
+        $rootNode
+            ->children()
+                ->booleanNode('enabled')->defaultTrue()->end()
+            ->end();
         // Here you should define the parameters that are allowed to
         // configure your bundle. See the documentation linked above for
         // more information on that topic.

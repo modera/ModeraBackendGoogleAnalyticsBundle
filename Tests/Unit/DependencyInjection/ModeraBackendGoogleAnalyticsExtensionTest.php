@@ -19,6 +19,8 @@ class ModeraBackendGoogleAnalyticsExtensionTest extends \PHPUnit_Framework_TestC
 
         $ext->load(array(), $builder);
 
+        $this->assertTrue($builder->getParameter('modera_backend_google_analytics.enabled'));
+
         $this->assertTrue($builder->hasDefinition('modera_backend_google_analytics.contributions.client_di_service_definitions_provider'));
         $this->assertTrue($builder->hasDefinition('modera_backend_google_analytics.contributions.class_loader_mappings_provider'));
         $this->assertTrue($builder->hasDefinition('modera_backend_google_analytics.contributions.config_entries_provider'));
