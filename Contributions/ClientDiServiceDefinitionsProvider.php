@@ -14,12 +14,23 @@ use Sli\ExpanderBundle\Ext\ContributorInterface;
  */
 class ClientDiServiceDefinitionsProvider implements ContributorInterface
 {
+    /** @var boolean $enabled */
+    private $enabled;
+
+    /**
+     * @param $enabled
+     */
+    public function __construct($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getItems()
     {
-        return array(
+        $items = array(
             'modera_backend_google_analytics.runtime.tracking_injection_plugin' => array(
                 'className' => 'Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin',
                 'args' => [
@@ -54,5 +65,11 @@ class ClientDiServiceDefinitionsProvider implements ContributorInterface
                 ],
             ),
         );
+
+        if (!$this->enabled) {
+            $items = array();
+        }
+
+        return $items;
     }
 }
