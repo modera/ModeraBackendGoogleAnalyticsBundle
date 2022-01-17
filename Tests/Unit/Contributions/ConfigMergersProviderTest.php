@@ -41,7 +41,7 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
             ->thenReturn('foo-value')
         ;
 
-        $configEntriesManager = \Phake::mock('Modera\ConfigBundle\Config\ConfigurationEntriesManagerInterface');
+        $configEntriesManager = \Phake::mock('Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface');
         \Phake::when($configEntriesManager)
             ->findOneByNameOrDie(ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY)
             ->thenReturn($configEntry)

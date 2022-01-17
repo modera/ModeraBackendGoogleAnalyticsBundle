@@ -3,7 +3,7 @@
 namespace Modera\BackendGoogleAnalyticsBundle\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
-use Modera\ConfigBundle\Config\ConfigurationEntriesManagerInterface;
+use Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface;
 use Modera\MjrIntegrationBundle\Config\CallbackConfigMerger;
 use Modera\SecurityBundle\Entity\User;
 use Sli\ExpanderBundle\Ext\ContributorInterface;
