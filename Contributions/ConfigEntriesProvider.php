@@ -3,9 +3,9 @@
 namespace Modera\BackendGoogleAnalyticsBundle\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
-use Sli\ExpanderBundle\Ext\ContributorInterface;
 use Modera\ConfigBundle\Config\ConfigurationEntryDefinition as CED;
 use Modera\FoundationBundle\Translation\T;
+use Sli\ExpanderBundle\Ext\ContributorInterface;
 
 /**
  * @internal
@@ -15,14 +15,11 @@ use Modera\FoundationBundle\Translation\T;
  */
 class ConfigEntriesProvider implements ContributorInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getItems()
+    public function getItems(): array
     {
-        $serverConfig = array(
+        $serverConfig = [
             'id' => 'modera_config.as_is_handler',
-        );
+        ];
 
         return [
             new CED(
@@ -31,7 +28,7 @@ class ConfigEntriesProvider implements ContributorInterface
                 '',
                 'google-analytics',
                 $serverConfig,
-                array()
+                []
             ),
         ];
     }

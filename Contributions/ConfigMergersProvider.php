@@ -18,32 +18,14 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
  */
 class ConfigMergersProvider implements ContributorInterface
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
+    private TokenStorageInterface $tokenStorage;
 
-    /**
-     * @var string
-     */
-    private $env;
+    private ConfigurationEntriesManagerInterface $configEntriesManager;
 
-    /**
-     * @var ConfigurationEntriesManagerInterface
-     */
-    private $configEntriesManager;
+    private KernelInterface $kernel;
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private string $env;
 
-    /**
-     * @param TokenStorageInterface                $tokenStorage
-     * @param ConfigurationEntriesManagerInterface $configEntriesManager
-     * @param KernelInterface                      $kernel
-     * @param string                               $env
-     */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         ConfigurationEntriesManagerInterface $configEntriesManager,
@@ -56,12 +38,9 @@ class ConfigMergersProvider implements ContributorInterface
         $this->env = $env;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getItems()
+    public function getItems(): array
     {
-        /* @var User $user */
+        /** @var User $user */
         $user = $this->tokenStorage->getToken()->getUser();
 
         $trackingCode = $this->configEntriesManager->findOneByNameOrDie(ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY);
@@ -79,14 +58,14 @@ class ConfigMergersProvider implements ContributorInterface
 
         return [
             new CallbackConfigMerger(function (array $currentConfig) use ($trackingCode, $user, $appName, $appVersion) {
-                $currentConfig['modera_backend_google_analytics'] = array(
+                $currentConfig['modera_backend_google_analytics'] = [
                     'user_id' => $user->getId(),
                     'tracking_code' => $trackingCode->getValue(),
                     'is_debug' => 'prod' != $this->env,
                     'prefix' => '/backend', // TODO use %modera_mjr_integration.routes_prefix% instead ?
                     'app_name' => $appName,
                     'app_version' => $appVersion,
-                );
+                ];
 
                 return $currentConfig;
             }),
