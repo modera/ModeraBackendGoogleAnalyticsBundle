@@ -60,6 +60,8 @@ class ConfigMergersProvider implements ContributorInterface
             new CallbackConfigMerger(function (array $currentConfig) use ($trackingCode, $user, $appName, $appVersion) {
                 $currentConfig['modera_backend_google_analytics'] = [
                     'user_id' => $user->getId(),
+                    'data_layer' => 'googleTagDataLayer',
+                    'fn_name' => 'googleTag',
                     'tracking_code' => $trackingCode->getValue(),
                     'is_debug' => 'prod' != $this->env,
                     'prefix' => '/backend', // TODO use %modera_mjr_integration.routes_prefix% instead ?

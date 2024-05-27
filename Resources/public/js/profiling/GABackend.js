@@ -33,7 +33,7 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
      *
      * @param {Object} config
      */
-    constructor: function (config) {
+    constructor: function(config) {
         MF.Util.validateRequiredConfigParams(this, config, ['trackingPlugin']);
 
         Ext.apply(this, config);
@@ -58,38 +58,43 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
             return false;
         }
 
-        if (typeof ga === 'undefined') {
-            console.warn("Modera.backend.googleanalytics.profiling.GABackend.onProfileComplete(): GA token is not configured, unable to send analytics.");
+        if (typeof this.trackingPlugin.gtag === 'undefined') {
+            console.warn(
+                '%s.onProfileComplete(): GA token is not configured, unable to send analytics', this.$className
+            );
             return false;
         }
 
+        var parameters = null;
+
         if (target instanceof MF.activation.activities.AbstractActivity) {
-            ga('send', {
-                hitType: 'timing',
-                timingCategory: 'MJR',
-                timingVar: this.trackingPlugin.createToken(),
-                timingLabel: 'View activation',
-                timingValue: ms
-            });
+            parameters = {
+                name: this.trackingPlugin.createToken(),
+                value: ms,
+                event_category: 'MJR',
+                event_label: 'View activation'
+            };
+
         } else {
             if (key.indexOf(':') != -1) {
                 // cat:var:label
-                var parts = key.split(":");
+                var parts = key.split(':');
                 if (parts.length >= 2) {
-                    var cfg = {
-                        hitType: 'timing',
-                        timingCategory: parts[0],
-                        timingVar: parts[1],
-                        timingValue: ms
+                    parameters = {
+                        name: parts[1],
+                        value: ms,
+                        event_category: parts[0]
                     };
 
                     if (parts[2]) {
-                        cfg.timingLabel = parts[2];
+                        parameters.event_label = parts[2];
                     }
-
-                    ga('send', cfg);
                 }
             }
+        }
+
+        if (parameters) {
+            this.trackingPlugin.gtag('event', 'timing_complete', parameters);
         }
 
         this.lastProfiledKey = key;

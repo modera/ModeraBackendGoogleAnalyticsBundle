@@ -38,7 +38,7 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     /**
      * @param {Object} config
      */
-    constructor: function (config) {
+    constructor: function(config) {
         MF.Util.validateRequiredConfigParams(this, config, ['configProvider', 'executionContext']);
 
         Ext.apply(this, config);
@@ -53,24 +53,44 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     injectTracker: function() {
         var me = this;
 
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        me.gtag = (function(trackingId, config, dataLayer, fnName) {
+            dataLayer = dataLayer || 'dataLayer';
+            fnName = fnName || 'gtag';
 
-        //ga('create', this.trackingCode, 'auto');
-        ga('create', me.config['tracking_code'], {
-            allowAnchor: true,
-            userId: me.config['user_id'],
-            appName: me.config['app_name'],
-            appVersion: me.config['app_version'],
-            siteSpeedSampleRate: 100, // GA wil gather timing analytics for 100% of users
-        });
+            window[dataLayer] = window[dataLayer] || [];
+            window[fnName] = function gtag() {
+                if (me.config['is_debug']) {
+                    console.log('[%s] gtag: ', me.$className, arguments);
+                }
+                window[dataLayer].push(arguments);
+            };
+            window[fnName]['dataLayer'] = dataLayer;
+
+            window[fnName]('js', new Date());
+            window[fnName]('config', trackingId, config);
+
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + trackingId + '&l=' + dataLayer;
+
+            var scripts = document.getElementsByTagName('script');
+            scripts[0].parentNode.insertBefore(script, scripts[0]);
+
+            return window[fnName];
+        })(me.config['tracking_code'], {
+            send_page_view: false,
+            user_id: me.config['user_id'],
+            user_properties: {
+                app_name: me.config['app_name'],
+                app_version: me.config['app_version']
+            },
+            site_speed_sample_rate: 100 // GA wil gather timing analytics for 100% of users
+        }, me.config['data_layer'], me.config['fn_name']);
 
         var debugStatus = 'debug ' + (me.config['is_debug'] ? 'enabled' : 'disabled');
 
         console.debug(
-            '%s.bootstrap(): Injected GA tracking snippet with code "%s" (%s).', me.$className, me.config['tracking_code'], debugStatus
+            '%s.injectTracker(): Injected GA tracking snippet with code "%s" (%s).', me.$className, me.config['tracking_code'], debugStatus
         );
     },
 
@@ -82,18 +102,19 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     // internal
     // also used by "Modera.backend.googleanalytics.profiling.GABackend"
     createToken: function() {
-        var sectionName = this.executionContext.getSectionName();
+        var me = this;
+        var sectionName = me.executionContext.getSectionName();
         if (!sectionName) {
             // MPFE-865
             // This local fix is required before MPFE-865 is resolved properly on MJR level
-            if (this.rootConfig.menuItems[0]) {
-                sectionName = this.rootConfig.menuItems[0].id;
+            if (me.rootConfig.menuItems[0]) {
+                sectionName = me.rootConfig.menuItems[0].id;
             }
         }
 
-        var token = this.compileToken(
+        var token = me.compileToken(
             sectionName,
-            Ext.Object.getKeys(this.executionContext.getAllParams())
+            Ext.Object.getKeys(me.executionContext.getAllParams())
         );
 
         return token;
@@ -101,14 +122,19 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
     // private
     logScreenView: function() {
-        var token = this.createToken();
+        var me = this;
+        var token = me.createToken();
 
-        ga('send', 'screenview', {
-            'screenName': token
+        me.gtag && me.gtag('event', 'screen_view', {
+            app_name: me.config['app_name'],
+            app_version: me.config['app_version'],
+            screen_name: token
         });
 
-        if (this.config['is_debug']) {
-            console.debug('%s: Sent "screenview" hit with screenName "%s".', this.$className, token);
+        if (me.config['is_debug']) {
+            console.debug(
+                '%s: Sent "screenview" hit with screenName "%s".', me.$className, token
+            );
         }
     },
 
@@ -116,9 +142,11 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     bootstrap: function(cb) {
         var me = this;
 
-        this.configProvider.getConfig(function(config) {
+        me.configProvider.getConfig(function(config) {
             if (!config.hasOwnProperty('modera_backend_google_analytics')) {
-                console.error('%s.bootstrap(): Unable to find required config, aborting tracker initialization.', me.$className);
+                console.error(
+                    '%s.bootstrap(): Unable to find required config, aborting tracker initialization.', me.$className
+                );
 
                 cb();
                 return;
@@ -142,15 +170,16 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
             // MPFE-873
             window.onerror = function(msg, url, line, col, error) {
-                var position = ['f:'+url, 'l:'+line];
+                var position = [ 'f:' + url, 'l:' + line ];
                 if (col) {
-                    position.push('c:'+col);
+                    position.push('c:' + col);
                 }
 
-                var formattedMsg = msg+' ['+position.join(' ; ')+']';
+                var formattedMsg = msg + ' [' + position.join(' ; ') + ']';
 
-                ga('send', 'exception', {
-                    exDescription: formattedMsg
+                me.gtag && me.gtag('event', 'exception', {
+                    description: formattedMsg,
+                    fatal: false
                 });
             };
 
