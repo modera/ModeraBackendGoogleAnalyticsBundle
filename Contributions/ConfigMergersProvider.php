@@ -40,9 +40,6 @@ class ConfigMergersProvider implements ContributorInterface
 
     public function getItems(): array
     {
-        /** @var User $user */
-        $user = $this->tokenStorage->getToken()->getUser();
-
         $trackingCode = $this->configEntriesManager->findOneByNameOrDie(ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY);
 
         $appName = 'Modera Foundation';
@@ -57,9 +54,26 @@ class ConfigMergersProvider implements ContributorInterface
         }
 
         return [
-            new CallbackConfigMerger(function (array $currentConfig) use ($trackingCode, $user, $appName, $appVersion) {
-                $currentConfig['modera_backend_google_analytics'] = [
-                    'user_id' => $user->getId(),
+            new CallbackConfigMerger(function (array $currentConfig) use ($trackingCode, $appName, $appVersion) {
+                $userIdentifier = null;
+
+                $token = $this->tokenStorage->getToken();
+                if ($token) {
+                    $user = $token->getUser();
+                    if ($user) {
+                        $userIdentifier = \method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : $user->getUsername();
+                        if ($user instanceof User) {
+                            $userIdentifier = $user->getEmail();
+                        }
+                    }
+                }
+
+                if (!\is_array($currentConfig['modera_backend_google_analytics'])) {
+                    $currentConfig['modera_backend_google_analytics'] = [];
+                }
+
+                $currentConfig['modera_backend_google_analytics'] += [
+                    'user_id' => $userIdentifier,
                     'data_layer' => 'googleTagDataLayer',
                     'fn_name' => 'googleTag',
                     'tracking_code' => $trackingCode->getValue(),

@@ -80,17 +80,20 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
         })(me.config['tracking_code'], {
             send_page_view: false,
             user_id: me.config['user_id'],
-            user_properties: {
+            user_properties: Ext.apply({
                 app_name: me.config['app_name'],
                 app_version: me.config['app_version']
-            },
+            }, me.config['user_properties'] || {}),
             site_speed_sample_rate: 100 // GA wil gather timing analytics for 100% of users
         }, me.config['data_layer'], me.config['fn_name']);
 
         var debugStatus = 'debug ' + (me.config['is_debug'] ? 'enabled' : 'disabled');
 
         console.debug(
-            '%s.injectTracker(): Injected GA tracking snippet with code "%s" (%s).', me.$className, me.config['tracking_code'], debugStatus
+            '%s.injectTracker(): Injected GA tracking snippet with code "%s" (%s).',
+            me.$className,
+            me.config['tracking_code'],
+            debugStatus
         );
     },
 
@@ -101,8 +104,9 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
     // internal
     // also used by "Modera.backend.googleanalytics.profiling.GABackend"
-    createToken: function() {
+    createToken: function(activity) {
         var me = this;
+
         var sectionName = me.executionContext.getSectionName();
         if (!sectionName) {
             // MPFE-865
@@ -112,30 +116,46 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
             }
         }
 
-        var token = me.compileToken(
-            sectionName,
-            Ext.Object.getKeys(me.executionContext.getAllParams())
-        );
+        var activities = Ext.Object.getKeys(me.executionContext.getAllParams());
+        if (activity) {
+            var index = activities.indexOf(activity.getId());
+            activities.splice(index + 1, Number.POSITIVE_INFINITY);
+        }
 
-        return token;
+        return me.compileToken(sectionName, activities);
+    },
+
+    // private
+    getPageView: function() {
+        var me = this;
+
+        return {
+            page_title: me.createToken(),
+            page_location: window.location.href
+        };
     },
 
     // private
     logScreenView: function() {
         var me = this;
-        var token = me.createToken();
 
-        me.gtag && me.gtag('event', 'screen_view', {
-            app_name: me.config['app_name'],
-            app_version: me.config['app_version'],
-            screen_name: token
-        });
+        var pageView = me.getPageView();
+
+        me.gtag && me.gtag('event', 'page_view', pageView);
 
         if (me.config['is_debug']) {
-            console.debug(
-                '%s: Sent "screenview" hit with screenName "%s".', me.$className, token
-            );
+            console.debug('%s: Sent "page_view" hit:', me.$className, pageView);
         }
+    },
+
+    // public
+    logException: function(description, fatal) {
+        var me = this;
+
+        me.gtag && me.gtag('event', 'exception', Ext.apply({
+            description: description,
+            fatal: fatal || false
+        }, me.getPageView()));
     },
 
     // override
@@ -145,7 +165,8 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
         me.configProvider.getConfig(function(config) {
             if (!config.hasOwnProperty('modera_backend_google_analytics')) {
                 console.error(
-                    '%s.bootstrap(): Unable to find required config, aborting tracker initialization.', me.$className
+                    '%s.bootstrap(): Unable to find required config, aborting tracker initialization.',
+                    me.$className
                 );
 
                 cb();
@@ -170,17 +191,17 @@ Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
 
             // MPFE-873
             window.onerror = function(msg, url, line, col, error) {
-                var position = [ 'f:' + url, 'l:' + line ];
-                if (col) {
-                    position.push('c:' + col);
+                var description = msg;
+                if (url) {
+                    var position = [ 'f:' + url, 'l:' + line ];
+                    if (col) {
+                        position.push('c:' + col);
+                    }
+
+                    description = Ext.String.format('{0} [{1}]', msg, position.join(' ; '));
                 }
 
-                var formattedMsg = msg + ' [' + position.join(' ; ') + ']';
-
-                me.gtag && me.gtag('event', 'exception', {
-                    description: formattedMsg,
-                    fatal: false
-                });
+                me.logException(description);
             };
 
             me.executionContext.on('transactioncommitted', function() {

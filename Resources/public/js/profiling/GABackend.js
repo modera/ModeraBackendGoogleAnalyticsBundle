@@ -34,11 +34,13 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
      * @param {Object} config
      */
     constructor: function(config) {
-        MF.Util.validateRequiredConfigParams(this, config, ['trackingPlugin']);
+        var me = this;
 
-        Ext.apply(this, config);
+        MF.Util.validateRequiredConfigParams(me, config, ['trackingPlugin']);
 
-        this.lastProfiledKey = null;
+        Ext.apply(me, config);
+
+        me.lastProfiledKey = null;
     },
 
     /**
@@ -50,17 +52,19 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
      * @inheritDoc
      */
     onProfileComplete: function(target, key, ms) {
-        if (this.lastProfiledKey == key) {
-            console.debug(
-                '%s.onProfileComplete(target, key, ms): Aborting sending same profiling result twice', this.$className
-            );
+        var me = this;
 
-            return false;
-        }
+        // if (me.lastProfiledKey == key) {
+        //     console.debug(
+        //         '%s.onProfileComplete(target, key, ms): Aborting sending same profiling result twice', me.$className
+        //     );
+        //
+        //     return false;
+        // }
 
-        if (typeof this.trackingPlugin.gtag === 'undefined') {
+        if (typeof me.trackingPlugin.gtag === 'undefined') {
             console.warn(
-                '%s.onProfileComplete(): GA token is not configured, unable to send analytics', this.$className
+                '%s.onProfileComplete(): GA token is not configured, unable to send analytics', me.$className
             );
             return false;
         }
@@ -69,10 +73,11 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
 
         if (target instanceof MF.activation.activities.AbstractActivity) {
             parameters = {
-                name: this.trackingPlugin.createToken(),
+                name: me.trackingPlugin.createToken(target),
                 value: ms,
                 event_category: 'MJR',
-                event_label: 'View activation'
+                event_label: 'View activation',
+                view_params: JSON.stringify(me.trackingPlugin.executionContext.getParams(target))
             };
 
         } else {
@@ -93,11 +98,11 @@ Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
             }
         }
 
-        if (parameters) {
-            this.trackingPlugin.gtag('event', 'timing_complete', parameters);
+        if (Ext.isObject(parameters)) {
+            me.trackingPlugin.gtag('event', 'timing_complete', parameters);
         }
 
-        this.lastProfiledKey = key;
+        me.lastProfiledKey = key;
 
         return true;
     }
