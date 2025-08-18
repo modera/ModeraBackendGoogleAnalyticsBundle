@@ -4,38 +4,25 @@ namespace Modera\BackendGoogleAnalyticsBundle\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
 use Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface;
+use Modera\ExpanderBundle\Ext\ContributorInterface;
 use Modera\MjrIntegrationBundle\Config\CallbackConfigMerger;
 use Modera\SecurityBundle\Entity\User;
-use Sli\ExpanderBundle\Ext\ContributorInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * @internal
  *
- * @author    Sergei Lissovski <sergei.lissovski@modera.org>
  * @copyright 2016 Modera Foundation
  */
 class ConfigMergersProvider implements ContributorInterface
 {
-    private TokenStorageInterface $tokenStorage;
-
-    private ConfigurationEntriesManagerInterface $configEntriesManager;
-
-    private KernelInterface $kernel;
-
-    private string $env;
-
     public function __construct(
-        TokenStorageInterface $tokenStorage,
-        ConfigurationEntriesManagerInterface $configEntriesManager,
-        KernelInterface $kernel,
-        $env
+        private TokenStorageInterface $tokenStorage,
+        private ConfigurationEntriesManagerInterface $configEntriesManager,
+        private KernelInterface $kernel,
+        private string $env,
     ) {
-        $this->tokenStorage = $tokenStorage;
-        $this->configEntriesManager = $configEntriesManager;
-        $this->kernel = $kernel;
-        $this->env = $env;
     }
 
     public function getItems(): array
@@ -68,7 +55,7 @@ class ConfigMergersProvider implements ContributorInterface
                     }
                 }
 
-                if (!\is_array($currentConfig['modera_backend_google_analytics'])) {
+                if (!\is_array($currentConfig['modera_backend_google_analytics'] ?? null)) {
                     $currentConfig['modera_backend_google_analytics'] = [];
                 }
 

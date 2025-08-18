@@ -3,8 +3,6 @@
  * when the reporting is done.
  *
  * This class requires MJR of version 0.3 or higher.
- *
- * @author Sergei Lissovski <sergei.lissovski@modera.org>
  */
 Ext.define('Modera.backend.googleanalytics.profiling.GABackend', {
     extend: 'MF.profiling.AbstractBackend',

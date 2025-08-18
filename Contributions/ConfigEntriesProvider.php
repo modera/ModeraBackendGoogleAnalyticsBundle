@@ -4,13 +4,12 @@ namespace Modera\BackendGoogleAnalyticsBundle\Contributions;
 
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
 use Modera\ConfigBundle\Config\ConfigurationEntryDefinition as CED;
+use Modera\ExpanderBundle\Ext\ContributorInterface;
 use Modera\FoundationBundle\Translation\T;
-use Sli\ExpanderBundle\Ext\ContributorInterface;
 
 /**
  * @internal
  *
- * @author    Sergei Lissovski <sergei.lissovski@modera.org>
  * @copyright 2016 Modera Foundation
  */
 class ConfigEntriesProvider implements ContributorInterface

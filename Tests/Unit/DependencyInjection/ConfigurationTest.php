@@ -6,32 +6,31 @@ use Modera\BackendGoogleAnalyticsBundle\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Processor;
 
 /**
- * @author  Alexander Ivanitsa <alexander.ivanitsa@modera.net>
  * @copyright 2017 Modera Foundation
  */
-class ConfigurationTest extends \PHPUnit_Framework_TestCase
+class ConfigurationTest extends \PHPUnit\Framework\TestCase
 {
-    public function testNoExplicitConfigProvided()
+    public function testNoExplicitConfigProvided(): void
     {
         $configuration = new Configuration();
 
         $processor = new Processor();
-        $config = $processor->processConfiguration($configuration, array());
+        $config = $processor->processConfiguration($configuration, []);
 
         $this->assertArrayHasKey('enabled', $config);
         $this->assertTrue($config['enabled']);
     }
 
-    public function testWithConfigGiven()
+    public function testWithConfigGiven(): void
     {
         $configuration = new Configuration();
 
         $processor = new Processor();
-        $config = $processor->processConfiguration($configuration, array(
-            'modera_backend_google_analytics' => array(
+        $config = $processor->processConfiguration($configuration, [
+            'modera_backend_google_analytics' => [
                 'enabled' => false,
-            ),
-        ));
+            ],
+        ]);
 
         $this->assertArrayHasKey('enabled', $config);
         $this->assertFalse($config['enabled']);

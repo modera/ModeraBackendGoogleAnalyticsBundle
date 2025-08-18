@@ -5,43 +5,54 @@ namespace Modera\BackendGoogleAnalyticsBundle\Tests\Unit\Contributions;
 use Modera\BackendGoogleAnalyticsBundle\Contributions\ConfigMergersProvider;
 use Modera\BackendGoogleAnalyticsBundle\ModeraBackendGoogleAnalyticsBundle;
 use Modera\BackendGoogleAnalyticsBundle\Tests\Fixtures\DummyKernel;
+use Modera\ConfigBundle\Config\ConfigurationEntryInterface;
+use Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface;
 use Modera\MjrIntegrationBundle\Config\ConfigMergerInterface;
 use Modera\SecurityBundle\Entity\User;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 /**
- * @author    Sergei Lissovski <sergei.lissovski@modera.org>
  * @copyright 2016 Modera Foundation
  */
-class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
+class ConfigMergersProviderTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGetItems()
+    public function testGetItems(): void
     {
-        $user = \Phake::mock(User::clazz());
+        $user = \Phake::mock(User::class);
         \Phake::when($user)
             ->getId()
             ->thenReturn('foo-id')
         ;
+        \Phake::when($user)
+            ->getUserIdentifier()
+            ->thenReturn('foo-id')
+        ;
+        \Phake::when($user)
+            ->getEmail()
+            ->thenReturn('foo-id')
+        ;
 
-        $token = \Phake::mock('Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken');
+        $token = \Phake::mock(UsernamePasswordToken::class);
         \Phake::when($token)
             ->getUser()
             ->thenReturn($user)
         ;
 
-        $tokenStorage = \Phake::mock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface');
+        $tokenStorage = \Phake::mock(TokenStorageInterface::class);
         \Phake::when($tokenStorage)
             ->getToken()
             ->thenReturn($token)
         ;
 
-        $configEntry = \Phake::mock('Modera\ConfigBundle\Config\ConfigurationEntryInterface');
+        $configEntry = \Phake::mock(ConfigurationEntryInterface::class);
         \Phake::when($configEntry)
             ->getValue()
             ->thenReturn('foo-value')
         ;
 
-        $configEntriesManager = \Phake::mock('Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface');
+        $configEntriesManager = \Phake::mock(ConfigurationEntriesManagerInterface::class);
         \Phake::when($configEntriesManager)
             ->findOneByNameOrDie(ModeraBackendGoogleAnalyticsBundle::TRACKING_CODE_CONFIG_KEY)
             ->thenReturn($configEntry)
@@ -58,15 +69,15 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
 
         $items = $provider->getItems();
 
-        $this->assertTrue(is_array($items));
-        $this->assertEquals(1, count($items));
+        $this->assertTrue(\is_array($items));
+        $this->assertEquals(1, \count($items));
 
-        /* @var ConfigMergerInterface $merger */
+        /** @var ConfigMergerInterface $merger */
         $merger = $items[0];
 
-        $this->assertInstanceOf('Modera\MjrIntegrationBundle\Config\ConfigMergerInterface', $merger);
+        $this->assertInstanceOf(ConfigMergerInterface::class, $merger);
 
-        $config = $merger->merge(array());
+        $config = $merger->merge([]);
 
         $this->assertArrayHasKey('modera_backend_google_analytics', $config);
         $config = $config['modera_backend_google_analytics'];
@@ -94,10 +105,10 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
 
         $items = $provider->getItems();
 
-        $this->assertTrue(is_array($items));
-        $this->assertEquals(1, count($items));
+        $this->assertTrue(\is_array($items));
+        $this->assertEquals(1, \count($items));
 
-        $config = $items[0]->merge(array());
+        $config = $items[0]->merge([]);
 
         $this->assertTrue($config['modera_backend_google_analytics']['is_debug']);
 
@@ -116,9 +127,9 @@ class ConfigMergersProviderTest extends \PHPUnit_Framework_TestCase
 
         $items = $provider->getItems();
 
-        $this->assertEquals(1, count($items));
+        $this->assertEquals(1, \count($items));
 
-        $config = $items[0]->merge(array());
+        $config = $items[0]->merge([]);
 
         $this->assertArrayHasKey('modera_backend_google_analytics', $config);
 

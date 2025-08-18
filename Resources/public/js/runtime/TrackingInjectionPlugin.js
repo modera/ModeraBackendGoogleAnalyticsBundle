@@ -1,8 +1,6 @@
 /**
  * Adds Google Analytics to MJR so every time a new section/activity is being opened a screenview is sent
  * to GA. This plugin also adds a basic exception logging functionality.
- *
- * @author Sergei Lissovski <sergei.lissovski@modera.org>
  */
 Ext.define('Modera.backend.googleanalytics.runtime.TrackingInjectionPlugin', {
     extend: 'MF.runtime.extensibility.AbstractPlugin',
