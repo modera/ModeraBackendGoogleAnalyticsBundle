@@ -29,7 +29,7 @@
                  class="Modera\BackendGoogleAnalyticsBundle\Contributions\ConfigMergersProvider">
 
             <argument type="service" id="security.token_storage" />
-            <argument type="service" id="modera_config.configuration_entries_manager" />
+            <argument type="service" id="Modera\ConfigBundle\Manager\ConfigurationEntriesManagerInterface" />
             <argument type="service" id="kernel" />
             <argument type="string">%kernel.environment%</argument>
 
